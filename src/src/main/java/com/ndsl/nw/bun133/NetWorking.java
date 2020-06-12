@@ -18,7 +18,7 @@ public class NetWorking {
 
     public void run(){
         Serializer<NetWorking> serializer=new Serializer<>(this);
-        JsonContent content1 = JsonContent.build("{1:100}");
+        JsonContent content1 = JsonContent.build("{1:{\"a\":\"a\"}}");
 
         serializer.serialize();
         json.add(content);

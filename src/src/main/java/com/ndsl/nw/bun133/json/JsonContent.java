@@ -65,7 +65,7 @@ public class JsonContent {
                         case Type_String:
                             return new JsonContent(getData(s),getValue(s));
                         case Type_JsonContent:
-                            return new JsonContent(getData(s),getValue(s));
+                            return new JsonContent(getData(s),getAsJson(getValue(s)));
                     }
                 case Type_String:
                     switch (getType(getValue(s))){
@@ -74,7 +74,7 @@ public class JsonContent {
                         case Type_String:
                             return new JsonContent(getData(s),getValue(s));
                         case Type_JsonContent:
-                            return new JsonContent(getData(s),getValue(s));
+                            return new JsonContent(getData(s),getAsJson(getValue(s)));
                     }
                 case Type_int:
                     switch (getType(getValue(s))){
@@ -83,7 +83,7 @@ public class JsonContent {
                         case Type_String:
                             return new JsonContent(getData(s),getValue(s));
                         case Type_JsonContent:
-                            return new JsonContent(getData(s),getValue(s));
+                            return new JsonContent(getData(s),getAsJson(getValue(s)));
                     }
             }
         }else{
@@ -105,8 +105,8 @@ public class JsonContent {
 
     private static String getValue(@NotNull String s){
         if(s.contains(":")){
-            String substring = s.substring(s.indexOf(":") + 1, s.indexOf("}"));
-            System.out.println("Data:"+ substring);;
+            String substring = s.substring(s.indexOf(":") + 1, s.lastIndexOf("}"));
+            System.out.println("Value:"+ substring);;
             return substring;
         }else{
             System.out.println("[JsonContent]getData:NotString Contain \":\"");
@@ -129,6 +129,20 @@ public class JsonContent {
         if(Int_Matcher.find()) return JsonContentType.Type_int;
         if(Json_Matcher.find()) return JsonContentType.Type_JsonContent;
         System.out.println("[ERROR][JsonContent]NotMatched!");
+        return null;
+    }
+
+    @Nullable
+    private static Json getAsJson(@Nullable String s){
+        Matcher matcher=Type_Json_Patten.matcher(s);
+        if(matcher.find()){
+            Json json=new Json();
+            json.add(JsonContent.build(s));
+            return json;
+        }else{
+            System.out.println("[JsonContent]getAsJson:Is not Json");
+            System.out.println("Data:"+s);
+        }
         return null;
     }
 }
