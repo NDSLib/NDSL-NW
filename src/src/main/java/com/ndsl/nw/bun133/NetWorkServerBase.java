@@ -36,13 +36,31 @@ public class NetWorkServerBase extends Thread{
 //                System.out.println("Trying");
                 if(inputStream.available()>0){
                     System.out.println("Data Available");
-                    outputStream.writeUTF("Server Pong!");
+                    send("Server Pong!");
                     System.out.println(inputStream.readUTF());
                 }
 //                System.out.println("Tried!");
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+    public void send(Object o) throws IOException {
+        if(o instanceof String){
+            this.outputStream.writeUTF((String)o);
+        }else if(o instanceof Integer){
+            this.outputStream.writeInt((int)o);
+        }else if(o instanceof Boolean){
+            this.outputStream.writeBoolean((boolean)o);
+        }else if(o instanceof Character){
+            this.outputStream.writeChar((char)o);
+        }else if(o instanceof Double){
+            this.outputStream.writeDouble((double)o);
+        }else if(o instanceof Long){
+            this.outputStream.writeLong((long)o);
+        }else if(o instanceof Float){
+            this.outputStream.writeFloat((float)o);
         }
     }
 }

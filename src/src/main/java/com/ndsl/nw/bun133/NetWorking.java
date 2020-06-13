@@ -56,7 +56,7 @@ public class NetWorking {
         while (true) {
             Thread.sleep(1);
 //            System.out.println("Client Thread Loop");
-            Connecting.sockOut.writeUTF("Data with String");
+            Connecting.send("Data with String");
             if (Connecting.isAvailable()) {
                 System.out.println("Data is Available");
                 System.out.println(Connecting.sockIn.readUTF());

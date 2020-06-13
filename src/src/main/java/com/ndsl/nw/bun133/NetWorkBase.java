@@ -46,4 +46,22 @@ public class NetWorkBase{
     public boolean isAvailable() throws IOException {
         return sockIn.available()>0;
     }
+
+    public void send(Object o) throws IOException {
+        if(o instanceof String){
+            this.sockOut.writeUTF((String)o);
+        }else if(o instanceof Integer){
+            this.sockOut.writeInt((int)o);
+        }else if(o instanceof Boolean){
+            this.sockOut.writeBoolean((boolean)o);
+        }else if(o instanceof Character){
+            this.sockOut.writeChar((char)o);
+        }else if(o instanceof Double){
+            this.sockOut.writeDouble((double)o);
+        }else if(o instanceof Long){
+            this.sockOut.writeLong((long)o);
+        }else if(o instanceof Float){
+            this.sockOut.writeFloat((float)o);
+        }
+    }
 }
