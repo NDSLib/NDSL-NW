@@ -1,10 +1,11 @@
-package com.ndsl.nw.bun133;
+package com.ndsl.nw.bun133.server;
 
 import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NetWorkServerBase extends Thread{
     public ServerSocket serverSocket=new ServerSocket();
@@ -28,18 +29,14 @@ public class NetWorkServerBase extends Thread{
         } catch (IOException e) {
             e.printStackTrace();
         }
-        String data="";
-        //noinspection InfiniteLoopStatement
+
         while (true){
-//            System.out.println("Thread Loop");
             try {
-//                System.out.println("Trying");
                 if(inputStream.available()>0){
-                    System.out.println("Data Available");
-                    send("Server Pong!");
-                    System.out.println(inputStream.readUTF());
+                    for(IServerListener listener:register.serverListenerList){
+                        listener.onPacket(inputStream,this);
+                    }
                 }
-//                System.out.println("Tried!");
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -61,6 +58,17 @@ public class NetWorkServerBase extends Thread{
             this.outputStream.writeLong((long)o);
         }else if(o instanceof Float){
             this.outputStream.writeFloat((float)o);
+        }
+    }
+
+    public register register=new register();
+    public class register{
+        private register(){}
+
+        public List<IServerListener> serverListenerList=new ArrayList<>();
+        public synchronized register add(IServerListener listener){
+            this.serverListenerList.add(listener);
+            return this;
         }
     }
 }

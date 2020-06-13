@@ -1,4 +1,4 @@
-package com.ndsl.nw.bun133;
+package com.ndsl.nw.bun133.client;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -63,5 +63,14 @@ public class NetWorkBase{
         }else if(o instanceof Float){
             this.sockOut.writeFloat((float)o);
         }
+    }
+
+    public long ping() throws IOException {
+        long send_time=System.currentTimeMillis();
+        send("echo request");
+        while(!(this.sockIn.available()>0)){
+//            System.out.println("Ping Reply Waiting...");
+        }
+        return System.currentTimeMillis()-send_time;
     }
 }

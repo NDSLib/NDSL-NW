@@ -1,9 +1,11 @@
 package com.ndsl.nw.bun133;
 
+import com.ndsl.nw.bun133.client.NetWorkBase;
 import com.ndsl.nw.bun133.json.Json;
 import com.ndsl.nw.bun133.json.JsonContent;
 import com.ndsl.nw.bun133.serializer.Field;
-import com.ndsl.nw.bun133.serializer.Serializer;
+import com.ndsl.nw.bun133.server.NetWorkServerBase;
+import com.ndsl.nw.bun133.server.Ping_Listener;
 
 import java.io.IOException;
 
@@ -24,7 +26,7 @@ public class NetWorking {
 
     @SuppressWarnings("BusyWait")
     public void run() throws InterruptedException, IOException {
-        Serializer<NetWorking> serializer = new Serializer<>(this);
+        /*Serializer<NetWorking> serializer = new Serializer<>(this);
         JsonContent content1 = JsonContent.build("{1:{\"a\":\"a\"}}");
 
         serializer.serialize();
@@ -33,7 +35,7 @@ public class NetWorking {
         json_2.add(content1);
         json.add(json_2.toContent("test_json"));
         System.out.println(json.serialize());
-        System.out.println("Json2:" + json_2.serialize());
+        System.out.println("Json2:" + json_2.serialize());*/
 
 
         /**
@@ -44,24 +46,25 @@ public class NetWorking {
         System.out.println(HttpRequest.Companion.genReqHeader("GET", "google.com", "/index.html", 80));
 
         System.out.println("Server Thread Start");
-        Thread server_thread=new NetWorkServerBase("127.0.0.1",8080);
+        NetWorkServerBase server_thread=new NetWorkServerBase("127.0.0.1",8080);
         server_thread.start();
+        server_thread.register.add(new Ping_Listener());
 
+        System.out.println("Client is Start");
         NetWorkBase Connecting = new NetWorkBase("127.0.0.1",8080);
         if (Connecting.socket.isConnected()) {
-            System.out.println("Connected!");
-//            HttpRequest.Companion.sendReq(Connecting.socket, HttpRequest.Companion.genGetReq("google.com", "/index.html", 80));
+            System.out.println("Client Connected!");
         }
-        //noinspection InfiniteLoopStatement
-        while (true) {
+
+        System.out.println("PingNanoMills:"+Connecting.ping()+"ms");
+
+        /*while (true) {
             Thread.sleep(1);
-//            System.out.println("Client Thread Loop");
-            Connecting.send("Data with String");
+            Connecting.send("Client Ping!");
             if (Connecting.isAvailable()) {
                 System.out.println("Data is Available");
                 System.out.println(Connecting.sockIn.readUTF());
-//                System.exit(0);
             }
-        }
+        }*/
     }
 }
