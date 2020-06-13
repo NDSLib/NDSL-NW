@@ -59,7 +59,7 @@ public class JsonContent {
             System.out.println("[JsonContent]Matched!");
             switch (getType(getData(s))){
                 case Type_JsonContent:
-                    switch (getType(getValue(s))){
+                    switch (getValueType(getValue(s))){
                         case Type_int:
                             return new JsonContent(getData(s),Integer.parseInt(getValue(s)));
                         case Type_String:
@@ -68,7 +68,7 @@ public class JsonContent {
                             return new JsonContent(getData(s),getAsJson(getValue(s)));
                     }
                 case Type_String:
-                    switch (getType(getValue(s))){
+                    switch (getValueType(getValue(s))){
                         case Type_int:
                             return new JsonContent(getData(s),Integer.parseInt(getValue(s)));
                         case Type_String:
@@ -77,7 +77,7 @@ public class JsonContent {
                             return new JsonContent(getData(s),getAsJson(getValue(s)));
                     }
                 case Type_int:
-                    switch (getType(getValue(s))){
+                    switch (getValueType(getValue(s))){
                         case Type_int:
                             return new JsonContent(getData(s),Integer.parseInt(getValue(s)));
                         case Type_String:
@@ -95,7 +95,7 @@ public class JsonContent {
     private static String getData(String s) {
         if(s.contains(":")){
             String substring = s.substring(s.indexOf("{") + 1, s.indexOf(":"));
-            System.out.println("Data:"+ substring);;
+//            System.out.println("Data:"+ substring);
             return substring;
         }else{
             System.out.println("[JsonContent]getData:NotString Contain \":\"");
@@ -106,7 +106,7 @@ public class JsonContent {
     private static String getValue(@NotNull String s){
         if(s.contains(":")){
             String substring = s.substring(s.indexOf(":") + 1, s.lastIndexOf("}"));
-            System.out.println("Value:"+ substring);;
+//            System.out.println("Value:"+ substring);;
             return substring;
         }else{
             System.out.println("[JsonContent]getData:NotString Contain \":\"");
@@ -121,7 +121,7 @@ public class JsonContent {
 
     @Nullable
     private static JsonContentType getType(String s) {
-        System.out.println("GetType:"+s);
+//        System.out.println("GetType:"+s);
         Matcher String_Matcher = Type_String_Patten.matcher(s);
         Matcher Int_Matcher = Type_Int_Patten.matcher(s);
         Matcher Json_Matcher = Type_Json_Patten.matcher(s);
@@ -130,6 +130,14 @@ public class JsonContent {
         if(Json_Matcher.find()) return JsonContentType.Type_JsonContent;
         System.out.println("[ERROR][JsonContent]NotMatched!");
         return null;
+    }
+
+    public static final Pattern Type_String_Value_Patten=Pattern.compile("^\"\"$");
+
+    private static JsonContentType getValueType(String s){
+        Matcher string_value_matcher = Type_String_Value_Patten.matcher(s);
+        if(string_value_matcher.find()) return JsonContentType.Type_String;
+        return getType(s);
     }
 
     @Nullable
@@ -144,5 +152,22 @@ public class JsonContent {
             System.out.println("Data:"+s);
         }
         return null;
+    }
+
+    public Object getAsObject(){
+        switch (this.type){
+            case Type_JsonContent:
+                return j_data;
+            case Type_String:
+                return data;
+            case Type_int:
+                return i_data;
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return "{"+this.field_name+":"+getAsObject().toString()+"}";
     }
 }

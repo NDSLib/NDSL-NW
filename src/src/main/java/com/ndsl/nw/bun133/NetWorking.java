@@ -4,6 +4,7 @@ import com.ndsl.nw.bun133.client.NetWorkBase;
 import com.ndsl.nw.bun133.json.Json;
 import com.ndsl.nw.bun133.json.JsonContent;
 import com.ndsl.nw.bun133.serializer.Field;
+import com.ndsl.nw.bun133.server.JsonPing;
 import com.ndsl.nw.bun133.server.NetWorkServerBase;
 import com.ndsl.nw.bun133.server.Ping_Listener;
 
@@ -24,8 +25,10 @@ public class NetWorking {
 
     }
 
-    @SuppressWarnings("BusyWait")
     public void run() throws InterruptedException, IOException {
+        Json de_json=Json.build("{{\"ping\":\"\"}}");
+        System.out.println("BuiltJson:"+de_json.toString());
+
         /*Serializer<NetWorking> serializer = new Serializer<>(this);
         JsonContent content1 = JsonContent.build("{1:{\"a\":\"a\"}}");
 
@@ -38,17 +41,18 @@ public class NetWorking {
         System.out.println("Json2:" + json_2.serialize());*/
 
 
-        /**
+        /*
          * Up is JsonTest
          * Down is NetWork Test
          */
-        System.out.println("RequestTest");
-        System.out.println(HttpRequest.Companion.genReqHeader("GET", "google.com", "/index.html", 80));
+//        System.out.println("RequestTest");
+//        System.out.println(HttpRequest.Companion.genReqHeader("GET", "google.com", "/index.html", 80));
 
         System.out.println("Server Thread Start");
         NetWorkServerBase server_thread=new NetWorkServerBase("127.0.0.1",8080);
         server_thread.start();
         server_thread.register.add(new Ping_Listener());
+        server_thread.register.add(new JsonPing());
 
         System.out.println("Client is Start");
         NetWorkBase Connecting = new NetWorkBase("127.0.0.1",8080);
@@ -57,6 +61,9 @@ public class NetWorking {
         }
 
         System.out.println("PingNanoMills:"+Connecting.ping()+"ms");
+
+        System.out.println("Json Sending...");
+        Connecting.send(de_json);
 
         /*while (true) {
             Thread.sleep(1);

@@ -1,5 +1,7 @@
 package com.ndsl.nw.bun133.client;
 
+import com.ndsl.nw.bun133.json.Json;
+import com.ndsl.nw.bun133.json.JsonContent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
@@ -49,20 +51,23 @@ public class NetWorkBase{
 
     public void send(Object o) throws IOException {
         if(o instanceof String){
-            this.sockOut.writeUTF((String)o);
+            this.sockOut.writeUTF((String)o);return;
         }else if(o instanceof Integer){
-            this.sockOut.writeInt((int)o);
+            this.sockOut.writeInt((int)o);return;
         }else if(o instanceof Boolean){
-            this.sockOut.writeBoolean((boolean)o);
+            this.sockOut.writeBoolean((boolean)o);return;
         }else if(o instanceof Character){
-            this.sockOut.writeChar((char)o);
+            this.sockOut.writeChar((char)o);return;
         }else if(o instanceof Double){
-            this.sockOut.writeDouble((double)o);
+            this.sockOut.writeDouble((double)o);return;
         }else if(o instanceof Long){
-            this.sockOut.writeLong((long)o);
+            this.sockOut.writeLong((long)o);return;
         }else if(o instanceof Float){
-            this.sockOut.writeFloat((float)o);
+            this.sockOut.writeFloat((float)o);return;
+        }else if(o instanceof Json){
+            this.sockOut.writeUTF(((Json) o).serialize());return;
         }
+        System.out.println("onSend Something went wrong!");
     }
 
     public long ping() throws IOException {
@@ -71,6 +76,20 @@ public class NetWorkBase{
         while(!(this.sockIn.available()>0)){
 //            System.out.println("Ping Reply Waiting...");
         }
-        return System.currentTimeMillis()-send_time;
+        if(this.sockIn.readUTF().equals("echo reply")) {
+            return System.currentTimeMillis() - send_time;
+        }
+        return -1;
+    }
+
+    public boolean isJson() throws IOException {
+        if (!(sockIn.available() > 0)) {
+            return false;
+        }
+        return null != Json.build(sockIn.readUTF());
+    }
+
+    public Json getJson() throws IOException{
+        return Json.build(sockIn.readUTF());
     }
 }
