@@ -56,7 +56,7 @@ public class JsonContent {
     public static JsonContent build(String s){
         Matcher JsonMatcher=JsonPatten.matcher(s);
         if (JsonMatcher.find()){
-            System.out.println("[JsonContent]Matched!");
+//            System.out.println("[JsonContent]Matched!");
             switch (getType(getData(s))){
                 case Type_JsonContent:
                     switch (getValueType(getValue(s))){

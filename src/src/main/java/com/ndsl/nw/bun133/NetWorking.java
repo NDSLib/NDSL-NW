@@ -9,6 +9,7 @@ import com.ndsl.nw.bun133.server.NetWorkServerBase;
 import com.ndsl.nw.bun133.server.Ping_Listener;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 public class NetWorking {
     public static final float Ver = 1.0f;
@@ -62,9 +63,11 @@ public class NetWorking {
 
         System.out.println("PingNanoMills:"+Connecting.ping()+"ms");
 
-        System.out.println("Json Sending...");
-        Connecting.send(de_json);
+        System.out.println("Json Pinging...");
+        System.out.println("PingWithJsonNanoMills:"+Connecting.pingWithJson()+"ms");
 
+        Scanner scanner=new Scanner(System.in);
+        Connecting.send(scanner.nextLine());
         /*while (true) {
             Thread.sleep(1);
             Connecting.send("Client Ping!");

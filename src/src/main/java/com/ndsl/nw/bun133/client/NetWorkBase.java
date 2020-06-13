@@ -82,6 +82,19 @@ public class NetWorkBase{
         return -1;
     }
 
+    public long pingWithJson()throws IOException{
+        Json de_json=Json.build("{{\"ping\":\"\"}}");
+        long send_time=System.currentTimeMillis();
+        send(de_json);
+        while(!(this.sockIn.available()>0)){
+//            System.out.println("Ping Reply Waiting...");
+        }
+        if(this.sockIn.readUTF().equals("{{\"pong\":\"\"}}")) {
+            return System.currentTimeMillis() - send_time;
+        }
+        return -1;
+    }
+
     public boolean isJson() throws IOException {
         if (!(sockIn.available() > 0)) {
             return false;

@@ -1,6 +1,7 @@
 package com.ndsl.nw.bun133.server;
 
 import com.ndsl.nw.bun133.json.Json;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -70,6 +71,7 @@ public class NetWorkServerBase extends Thread{
         return null != Json.build(inputStream.readUTF());
     }
 
+    @Nullable
     public Json getJson() throws IOException{
         System.out.println("getJson");
         return Json.build(inputStream.readUTF());

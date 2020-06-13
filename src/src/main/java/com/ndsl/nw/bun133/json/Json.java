@@ -9,6 +9,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Json {
+    public static final Object Sync_Obj=new Object();
+
     public List<JsonContent> jsonContents=new LinkedList<>();
     public Json(){
     }
@@ -55,26 +57,34 @@ public class Json {
                 return content;
             }
         }
+        System.out.println("NotFoundField:"+field_name);
         return null;
     }
     public static final Pattern JsonPatten=Pattern.compile("\\{(\\{\"[^{},]+\":[^{},]+},)*(\\{\"[^{},]+\":[^{},]+})}");
-    public static synchronized Json build(String s){
-        System.out.println("JsonBuilding");
-        Matcher json_matcher = JsonPatten.matcher(s);
-        if(json_matcher.find()){
-            Json json=new Json();
-            String withOut_Json_bracket = s.substring(1, s.length()-1);
-            System.out.println("withOut_Json_bracket:"+withOut_Json_bracket);
-            String[] contents=withOut_Json_bracket.split(",");
-            System.out.println("Contents:"+ Arrays.toString(contents));
-            for(String content:contents){
-                json.add(JsonContent.build(content));
+    @Nullable
+    public static Json build(String s){
+        synchronized (Json.Sync_Obj) {
+//            System.out.println("Thread:"+Thread.currentThread().getName()+" have got lock");
+//            System.out.println("JsonBuilding");
+            Matcher json_matcher = JsonPatten.matcher(s);
+            if (json_matcher.find()) {
+                Json json = new Json();
+                String withOut_Json_bracket = s.substring(1, s.length() - 1);
+//                System.out.println("withOut_Json_bracket:" + withOut_Json_bracket);
+                String[] contents = withOut_Json_bracket.split(",");
+//                System.out.println("Contents:" + Arrays.toString(contents));
+                for (String content : contents) {
+                    json.add(JsonContent.build(content));
+                }
+//                System.out.println("Thread:"+Thread.currentThread().getName()+" have lost lock");
+                return json;
+            } else {
+                System.out.println("[Json]NotMatched!");
+//                System.out.println("Thread:"+Thread.currentThread().getName()+" have lost lock");
+                return null;
             }
-            return json;
-        }else{
-            System.out.println("[Json]NotMatched!");
-            return null;
         }
+
     }
 
     @Override
