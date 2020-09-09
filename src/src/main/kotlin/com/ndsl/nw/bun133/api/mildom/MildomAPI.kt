@@ -4,6 +4,7 @@ package com.ndsl.nw.bun133.api.mildom
 
 import com.google.gson.Gson
 import com.ndsl.nw.bun133.api.mildom.jsons.*
+import com.ndsl.nw.bun133.client.HttpClient
 import com.ndsl.nw.bun133.websocket.WebSocketClient
 import org.java_websocket.handshake.ServerHandshake
 import java.net.URI
@@ -16,7 +17,8 @@ import kotlin.reflect.KClass
 const val MILDOM_WS: String = "wss://jp-room1.mildom.com/?roomId="
 const val GIFT_WS: String = "https://cloudac.mildom.com/nonolive/gappserv/gift/find"
 
-class MildomAPI(var id: Int) : WebSocketClient(URI("$MILDOM_WS$id")) {
+class MildomAPI(var id: Int,var giftSet: GiftSet) : WebSocketClient(URI("$MILDOM_WS$id")) {
+    constructor(id:Int) : this(id, GiftSet())
     companion object {
         const val default_user_agent = "Mozilla/5.0 (Windows; U; Win98; en-US; rv:0.9.2) Gecko/20010725 Netscape6/6.1"
     }
@@ -63,6 +65,7 @@ class MildomAPI(var id: Int) : WebSocketClient(URI("$MILDOM_WS$id")) {
                 println("[MildomAPI]onGift")
                 println("[MildomAPI]Sender:${details.userName}(ID:${details.userId})")
                 println("[MildomAPI]Gift:ID:${details.giftId}")
+                println("[MildomAPI]Gift:ID:${giftSet.getWithID(details.giftId)!!.name}")
             }
             MildomResponceType.recallMsg -> {
                 var details:onRecallMsg = MildomJsonWorker.getAsRecallMsg(message)
@@ -227,5 +230,25 @@ class MildomJsonWorker<T>(var clazz: Class<T>) {
 }
 
 class MildomSession() {
+}
 
+/////// GIFTS ///////
+class GiftSet(var gifts:Gifts){
+    constructor() : this(asyncGet())
+    companion object{
+        private const val endPoint = "https://cloudac.mildom.com/nonolive/gappserv/gift/find"
+        fun asyncGet():Gifts{
+            val http:HttpClient = HttpClient(endPoint)
+            val data = http.sendReq(http.Request.GET.genGetReq()).body()
+            val gson = Gson()
+            return gson.fromJson(data,Gifts::class.java)
+        }
+    }
+
+    fun getWithID(id:Int): Gifts.Gift? {
+        for(i in gifts.body.models){
+            if(i.gift_id==id) return i
+        }
+        return null
+    }
 }

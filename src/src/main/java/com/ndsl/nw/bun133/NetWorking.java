@@ -4,7 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.ndsl.nw.bun133.api.mildom.GiftSet;
 import com.ndsl.nw.bun133.api.mildom.MildomAPI;
+import com.ndsl.nw.bun133.api.mildom.jsons.Gifts;
 import com.ndsl.nw.bun133.client.HttpClient;
 import com.ndsl.nw.bun133.client.NetWorkBase;
 import com.ndsl.nw.bun133.json.Json;
@@ -40,7 +42,8 @@ public class NetWorking {
 //        new NetWorking().json_phase();
 //        new NetWorking().p2p_test();
 //        new NetWorking().webSocketTest();
-        new NetWorking().mildomAPI();
+//        new NetWorking().mildomAPI();
+        new NetWorking().mildomGiftTest();
     }
 
     public void run() throws InterruptedException, IOException {
@@ -195,6 +198,13 @@ public class NetWorking {
             Thread.sleep(10);
             api.getMessages().forEach(System.out::println);
             api.getMessages().clear();
+        }
+    }
+
+    public void mildomGiftTest(){
+        GiftSet set = new GiftSet();
+        for(Gifts.Gift gift : set.getGifts().body.models){
+            System.out.println("Gift:Id:"+gift.gift_id+" GiftName:"+gift.name);
         }
     }
 }
