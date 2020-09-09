@@ -9,7 +9,7 @@ public class onChat {
      */
     public String cmd;
     public boolean isCorrect(){return cmd.equals("onChat");}
-    public Integer fansBgPic;
+    public String fansBgPic;
     public Integer fansGroupType;
     public Integer fansLevel;
     public boolean isFan(){return fansLevel!=null;}

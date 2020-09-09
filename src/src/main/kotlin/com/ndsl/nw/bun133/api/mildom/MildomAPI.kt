@@ -40,13 +40,36 @@ class MildomAPI(var id: Int) : WebSocketClient(URI("$MILDOM_WS$id")) {
     }
 
     override fun onMessage(message: String?) {
-//        println("[MildomAPI]Respond:${message!!}")
-        when(MildomJsonWorker.getType(message!!)){
-            MildomResponceType.chat -> {println("[MildomAPI]onChat")}
-            MildomResponceType.add -> {println("[MildomAPI]onAdd");println("[MildomAPI]UserID:${MildomJsonWorker.getAsAdd(message).userId}")}
-            MildomResponceType.userCount -> {println("[MildomAPI]onUserCount");println("[MildomAPI]NowViewers:${MildomJsonWorker.getAsCount(message).userCount}")}
-            MildomResponceType.enterRoom -> {println("[MildomAPI]enterRoom");println("[MildomAPI]UserCount:${MildomJsonWorker.getAsEnterRoom(message).userCount}")}
-            MildomResponceType.runNotify -> {println("[MildomAPI]runNotify");println("[MildomAPI]Command:${MildomJsonWorker.getAsRunCmd(message).runCmd}")}
+        println("[MildomAPI]Respond:${message!!}")
+        when (MildomJsonWorker.getType(message!!)) {
+            MildomResponceType.chat -> {
+                println("[MildomAPI]onChat")
+                println("[MildomAPI]Chat:${MildomJsonWorker.getAsChat(message).msg}")
+            }
+            MildomResponceType.add -> {
+                println("[MildomAPI]onAdd");println("[MildomAPI]UserID:${MildomJsonWorker.getAsAdd(message).userId}")
+            }
+            MildomResponceType.userCount -> {
+                println("[MildomAPI]onUserCount");println("[MildomAPI]NowViewers:${MildomJsonWorker.getAsCount(message).userCount}")
+            }
+            MildomResponceType.enterRoom -> {
+                println("[MildomAPI]enterRoom");println("[MildomAPI]UserCount:${MildomJsonWorker.getAsEnterRoom(message).userCount}")
+            }
+            MildomResponceType.runNotify -> {
+                println("[MildomAPI]runNotify");println("[MildomAPI]Command:${MildomJsonWorker.getAsRunCmd(message).runCmd}")
+            }
+            MildomResponceType.gift -> {
+                val details:onGift = MildomJsonWorker.getAsGift(message)
+                println("[MildomAPI]onGift")
+                println("[MildomAPI]Sender:${details.userName}(ID:${details.userId})")
+                println("[MildomAPI]Gift:ID:${details.giftId}")
+            }
+            MildomResponceType.recallMsg -> {
+                var details:onRecallMsg = MildomJsonWorker.getAsRecallMsg(message)
+                println("[MildomAPI]Message was recalled.")
+                println("[MildomAPI]MesId:${details.msgId}")
+                println("[MildomAPI]UserID:${details.userId}")
+            }
         }
     }
 
@@ -118,20 +141,22 @@ class MildomDate {
     }
 }
 
-enum class MildomResponceType(var jsonClass: KClass<*>){
+enum class MildomResponceType(var jsonClass: KClass<*>) {
     add(onAdd::class),
     chat(onChat::class),
     userCount(onUserCount::class),
     enterRoom(EnterRoom::class),
-    runNotify(onRunCmdNotify::class)
+    runNotify(onRunCmdNotify::class),
+    gift(onGift::class),
+    recallMsg(onRecallMsg::class)
 }
 
-class MildomJsonWorker<T>(var clazz: Class<T>){
+class MildomJsonWorker<T>(var clazz: Class<T>) {
     fun getAs(data: String): T {
         return Gson().fromJson<T>(data, clazz)
     }
 
-    companion object{
+    companion object {
 //        fun get(data: String, type: MildomResponceType){
 //            when (type) {
 //                MildomResponceType.add -> {
@@ -144,42 +169,63 @@ class MildomJsonWorker<T>(var clazz: Class<T>){
 //        }
 
         fun getAsAdd(data: String): onAdd {
-            return Gson().fromJson(data, onAdd::class.java)
+            val checked = checkEmptyString(data)
+            return Gson().fromJson(checked, onAdd::class.java)
 //            return get(data, MildomResponceType.add) as onAdd
         }
 
-        fun getAsCount(data: String):onUserCount{
-            return Gson().fromJson(data, onUserCount::class.java)
+        fun getAsCount(data: String): onUserCount {
+            val checked = checkEmptyString(data)
+            return Gson().fromJson(checked, onUserCount::class.java)
 //            return get(data, MildomResponceType.userCount) as onUserCount
         }
 
-        fun getAsChat(data: String):onChat{
-            return Gson().fromJson(data, onChat::class.java)
+        fun getAsChat(data: String): onChat {
+            val checked = checkEmptyString(data)
+            return Gson().fromJson(checked, onChat::class.java)
 //            return get(data, MildomResponceType.chat) as onChat
         }
 
-        fun getAsEnterRoom(data:String):EnterRoom{
-            return Gson().fromJson(data, EnterRoom::class.java)
+        private fun checkEmptyString(data: String): String {
+            return data.replace("\"\"","\" \"")
+        }
+
+        fun getAsEnterRoom(data: String): EnterRoom {
+            val checked = checkEmptyString(data)
+            return Gson().fromJson(checked, EnterRoom::class.java)
 //            return get(data,MildomResponceType.enterRoom) as EnterRoom
         }
 
-        fun getAsRunCmd(data:String):onRunCmdNotify{
-            return Gson().fromJson(data, onRunCmdNotify::class.java)
+        fun getAsRunCmd(data: String): onRunCmdNotify {
+            val checked = checkEmptyString(data)
+            return Gson().fromJson(checked, onRunCmdNotify::class.java)
 //            return get(data,MildomResponceType.runNotify) as onRunCmdNotify
         }
 
-        fun getType(data: String):MildomResponceType{
+        fun getAsGift(data: String): onGift {
+            val checked = checkEmptyString(data)
+            return Gson().fromJson(checked, onGift::class.java)
+        }
+
+        fun getAsRecallMsg(data:String):onRecallMsg{
+            val checked = checkEmptyString(data)
+            return Gson().fromJson(checked,onRecallMsg::class.java)
+        }
+
+        fun getType(data: String): MildomResponceType {
             val gson = Gson()
-            if(data.indexOf("\"cmd\": \"onAdd\"")!=-1) return MildomResponceType.add
-            if(data.indexOf("\"cmd\": \"onChat\"")!=-1) return MildomResponceType.chat
-            if(data.indexOf("\"cmd\": \"onUserCount\"")!=-1) return MildomResponceType.userCount
-            if(data.indexOf("\"cmd\": \"enterRoom\"")!=-1) return MildomResponceType.enterRoom
-            if(data.indexOf("\"cmd\": \"runCmdNotify\"")!=-1) return MildomResponceType.runNotify
+            if (data.indexOf("\"cmd\": \"onAdd\"") != -1) return MildomResponceType.add
+            if (data.indexOf("\"cmd\": \"onChat\"") != -1) return MildomResponceType.chat
+            if (data.indexOf("\"cmd\": \"onUserCount\"") != -1) return MildomResponceType.userCount
+            if (data.indexOf("\"cmd\": \"enterRoom\"") != -1) return MildomResponceType.enterRoom
+            if (data.indexOf("\"cmd\": \"runCmdNotify\"") != -1) return MildomResponceType.runNotify
+            if (data.indexOf("\"cmd\": \"ongift\"") != -1) return MildomResponceType.gift
+            if (data.indexOf("\"cmd\": \"onRecallMsg\"") != -1) return MildomResponceType.recallMsg
             throw IllegalArgumentException()
         }
     }
 }
 
-class MildomSession(){
+class MildomSession() {
 
 }
