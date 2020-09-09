@@ -1,8 +1,12 @@
 package com.ndsl.nw.bun133.json;
 
+import com.google.gson.Gson;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -60,17 +64,22 @@ public class Json {
         System.out.println("NotFoundField:"+field_name);
         return null;
     }
-    public static final Pattern JsonPatten=Pattern.compile("\\{(\\{\"[^{},]+\":[^{},]+},)*(\\{\"[^{},]+\":[^{},]+})}");
-    @Nullable
+    public static final Pattern JsonPatten=Pattern.compile("\\{(\\{\"[^{},]+\":[^{},]+(,[^{},]+)*},)*(\\{\"[^{},]+\":[^{},]+(,[^{},]+)*})}");
+
+    @NotNull
     public static Json build(String s){
         synchronized (Json.Sync_Obj) {
 //            System.out.println("Thread:"+Thread.currentThread().getName()+" have got lock");
 //            System.out.println("JsonBuilding");
             Matcher json_matcher = JsonPatten.matcher(s);
-            if (json_matcher.find()) {
+//            if (json_matcher.find()) {
                 Json json = new Json();
                 String withOut_Json_bracket = s.substring(1, s.length() - 1);
 //                System.out.println("withOut_Json_bracket:" + withOut_Json_bracket);
+            boolean isInArray=false;
+            for(int charIndex = 0; charIndex < s.length(); charIndex++){
+
+            }
                 String[] contents = withOut_Json_bracket.split(",");
 //                System.out.println("Contents:" + Arrays.toString(contents));
                 for (String content : contents) {
@@ -78,13 +87,21 @@ public class Json {
                 }
 //                System.out.println("Thread:"+Thread.currentThread().getName()+" have lost lock");
                 return json;
-            } else {
-                System.out.println("[Json]NotMatched!");
+//            } else {
+//                System.out.println("[Json]NotMatched!");
 //                System.out.println("Thread:"+Thread.currentThread().getName()+" have lost lock");
-                return null;
-            }
+//                return null;
+//            }
         }
+    }
 
+    @NotNull
+    public static Json buildThrowError(String data,Class MapClass) throws JsonException {
+//        Json json= Json.build(data);
+//        if(json==null) throw new JsonException("Not Matched in Json.build");
+//        return json;
+        Gson gson= new Gson();
+        return gson.fromJson(data, (Type) MapClass);
     }
 
     @Override
