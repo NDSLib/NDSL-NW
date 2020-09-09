@@ -42,36 +42,48 @@ class MildomAPI(var id: Int,var giftSet: GiftSet) : WebSocketClient(URI("$MILDOM
     }
 
     override fun onMessage(message: String?) {
-        println("[MildomAPI]Respond:${message!!}")
+//        println("[MildomAPI]Respond:${message!!}")
         when (MildomJsonWorker.getType(message!!)) {
             MildomResponceType.chat -> {
-                println("[MildomAPI]onChat")
-                println("[MildomAPI]Chat:${MildomJsonWorker.getAsChat(message).msg}")
+                val e:onChat = MildomJsonWorker.getAsChat(message)
+                listeners.forEach { it.onChat(e) }
+//                println("[MildomAPI]onChat")
+//                println("[MildomAPI]Chat:${MildomJsonWorker.getAsChat(message).msg}")
             }
             MildomResponceType.add -> {
-                println("[MildomAPI]onAdd");println("[MildomAPI]UserID:${MildomJsonWorker.getAsAdd(message).userId}")
+                val e:onAdd = MildomJsonWorker.getAsAdd(message)
+                listeners.forEach { it.onAdd(e) }
+//                println("[MildomAPI]onAdd");println("[MildomAPI]UserID:${MildomJsonWorker.getAsAdd(message).userId}")
             }
             MildomResponceType.userCount -> {
-                println("[MildomAPI]onUserCount");println("[MildomAPI]NowViewers:${MildomJsonWorker.getAsCount(message).userCount}")
+                val e:onUserCount = MildomJsonWorker.getAsCount(message)
+                listeners.forEach { it.onUserCount(e) }
+//                println("[MildomAPI]onUserCount");println("[MildomAPI]NowViewers:${MildomJsonWorker.getAsCount(message).userCount}")
             }
             MildomResponceType.enterRoom -> {
-                println("[MildomAPI]enterRoom");println("[MildomAPI]UserCount:${MildomJsonWorker.getAsEnterRoom(message).userCount}")
+                val e:EnterRoom = MildomJsonWorker.getAsEnterRoom(message)
+                listeners.forEach { it.onEnterRoom(e) }
+//                println("[MildomAPI]enterRoom");println("[MildomAPI]UserCount:${MildomJsonWorker.getAsEnterRoom(message).userCount}")
             }
             MildomResponceType.runNotify -> {
-                println("[MildomAPI]runNotify");println("[MildomAPI]Command:${MildomJsonWorker.getAsRunCmd(message).runCmd}")
+                val e:onRunCmdNotify = MildomJsonWorker.getAsRunCmd(message)
+                listeners.forEach { it.onRunCmdNotify(e) }
+//                println("[MildomAPI]runNotify");println("[MildomAPI]Command:${MildomJsonWorker.getAsRunCmd(message).runCmd}")
             }
             MildomResponceType.gift -> {
-                val details:onGift = MildomJsonWorker.getAsGift(message)
-                println("[MildomAPI]onGift")
-                println("[MildomAPI]Sender:${details.userName}(ID:${details.userId})")
-                println("[MildomAPI]Gift:ID:${details.giftId}")
-                println("[MildomAPI]Gift:ID:${giftSet.getWithID(details.giftId)!!.name}")
+                val e:onGift = MildomJsonWorker.getAsGift(message)
+                listeners.forEach { it.onGift(e) }
+//                println("[MildomAPI]onGift")
+//                println("[MildomAPI]Sender:${details.userName}(ID:${details.userId})")
+//                println("[MildomAPI]Gift:ID:${details.giftId}")
+//                println("[MildomAPI]Gift:ID:${giftSet.getWithID(details.giftId)!!.name}")
             }
             MildomResponceType.recallMsg -> {
-                var details:onRecallMsg = MildomJsonWorker.getAsRecallMsg(message)
-                println("[MildomAPI]Message was recalled.")
-                println("[MildomAPI]MesId:${details.msgId}")
-                println("[MildomAPI]UserID:${details.userId}")
+                val e:onRecallMsg = MildomJsonWorker.getAsRecallMsg(message)
+                listeners.forEach{ it.onRecallMsg(e) }
+//                println("[MildomAPI]Message was recalled.")
+//                println("[MildomAPI]MesId:${details.msgId}")
+//                println("[MildomAPI]UserID:${details.userId}")
             }
         }
     }
@@ -117,6 +129,9 @@ class MildomAPI(var id: Int,var giftSet: GiftSet) : WebSocketClient(URI("$MILDOM
                 "${randomOf(AlphaSet, 4)}-" +
                 randomOf(AlphaSet, 12)
     }
+
+
+    var listeners:MutableList<MildomListener> = mutableListOf()
 }
 
 fun randomOf(sets: Array<String>): String {
@@ -251,4 +266,14 @@ class GiftSet(var gifts:Gifts){
         }
         return null
     }
+}
+
+interface MildomListener{
+    fun onChat(e:onChat)
+    fun onAdd(e:onAdd)
+    fun onUserCount(e:onUserCount)
+    fun onGift(e:onGift)
+    fun onEnterRoom(e:EnterRoom)
+    fun onRecallMsg(e:onRecallMsg)
+    fun onRunCmdNotify(e:onRunCmdNotify)
 }
